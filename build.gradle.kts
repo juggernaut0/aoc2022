@@ -18,8 +18,11 @@ dependencies {
 tasks {
     (1..25).forEach { n ->
         register("runDay$n", JavaExec::class) {
+            description = "Run Day $n Solution"
+            group = "Advent of Code"
             classpath = sourceSets.main.get().runtimeClasspath
             mainClass.set("Day${n}Kt")
+            systemProperty("aoc.day", n)
         }
     }
 
