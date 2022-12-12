@@ -1,7 +1,7 @@
 fun main() {
     val input = getInput()
 
-    val grid = input.toGrid { it.toString().toInt() }
+    val grid = input.toGrid { it, _ -> it.toString().toInt() }
 
     println(grid.points().count { isVisible(grid, it) })
     println(grid.points().maxOfOrNull { scenicScore(grid, it) })
