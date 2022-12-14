@@ -7,7 +7,11 @@ fun getInput(): String {
         .readText()
 }
 
-data class Point(val x: Int, val y: Int)
+data class Point(val x: Int, val y: Int) {
+    fun diff(x: Int = 0, y: Int = 0): Point {
+        return Point(this.x + x, this.y + y)
+    }
+}
 data class Grid<T>(val data: List<List<T>>) {
     operator fun get(p: Point): T {
         return getOrNull(p) ?: throw IndexOutOfBoundsException(p.toString())
