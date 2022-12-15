@@ -1,3 +1,5 @@
+import kotlin.math.absoluteValue
+
 fun getInput(): String {
     val day = System.getProperty("aoc.day")!!
     val resName = "/day$day.txt"
@@ -10,6 +12,10 @@ fun getInput(): String {
 data class Point(val x: Int, val y: Int) {
     fun diff(x: Int = 0, y: Int = 0): Point {
         return Point(this.x + x, this.y + y)
+    }
+
+    fun l1distance(other: Point): Int {
+        return (x - other.x).absoluteValue + (y - other.y).absoluteValue
     }
 }
 data class Grid<T>(val data: List<List<T>>) {
