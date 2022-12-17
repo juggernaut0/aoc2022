@@ -17,7 +17,26 @@ data class Point(val x: Int, val y: Int) {
     fun l1distance(other: Point): Int {
         return (x - other.x).absoluteValue + (y - other.y).absoluteValue
     }
+
+    operator fun plus(other: Point): Point {
+        return diff(other.x, other.y)
+    }
 }
+
+data class LongPoint(val x: Long, val y: Long) {
+    fun diff(x: Long = 0L, y: Long = 0L): LongPoint {
+        return LongPoint(this.x + x, this.y + y)
+    }
+
+    operator fun plus(other: LongPoint): LongPoint {
+        return diff(other.x, other.y)
+    }
+
+    operator fun plus(other: Point): LongPoint {
+        return diff(other.x.toLong(), other.y.toLong())
+    }
+}
+
 data class Grid<T>(val data: List<List<T>>) {
     operator fun get(p: Point): T {
         return getOrNull(p) ?: throw IndexOutOfBoundsException(p.toString())
