@@ -37,6 +37,20 @@ data class LongPoint(val x: Long, val y: Long) {
     }
 }
 
+data class Point3(val x: Int, val y: Int, val z: Int) {
+    fun diff(x: Int = 0, y: Int = 0, z: Int = 0): Point3 {
+        return Point3(this.x + x, this.y + y, this.z + z)
+    }
+
+    fun neighbors(): List<Point3> {
+        return listOf(
+            diff(x = 1), diff(x = -1),
+            diff(y = 1), diff(y = -1),
+            diff(z = 1), diff(z = -1),
+        )
+    }
+}
+
 data class Grid<T>(val data: List<List<T>>) {
     operator fun get(p: Point): T {
         return getOrNull(p) ?: throw IndexOutOfBoundsException(p.toString())
