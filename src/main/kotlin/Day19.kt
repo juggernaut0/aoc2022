@@ -33,11 +33,11 @@ object Day19 {
 
         fun findOptimal(time: Int): Int {
             val queue = mutableListOf(State())
-            var best = 0
+            var best = -1
             while (queue.isNotEmpty()) {
                 val state = queue.removeLast()
 
-                if (state.estimated(time) < best) continue
+                if (state.estimated(time) <= best) continue
 
                 if (state.time == time) {
                     if (state.geo > best) {
@@ -74,8 +74,31 @@ object Day19 {
         }
 
         fun State.estimated(maxTime: Int): Int {
-            val timeLeft = maxTime - time
-            return geo + geoRobots * timeLeft + (timeLeft * (timeLeft + 1) / 2)
+            var estClay = clay
+            var estClayRobots = clayRobots
+            var estObs = obs
+            var estObsRobots = obsRobots
+            var estGeo = geo
+            var estGeoRobots = geoRobots
+
+            for (t in time until maxTime) {
+                estClay += estClayRobots
+                estClayRobots++
+
+                estObs += estObsRobots
+                if (estClay >= obsClay) {
+                    estClay -= obsClay
+                    estObsRobots++
+                }
+
+                estGeo += estGeoRobots
+                if (estObs >= geoObs) {
+                    estObs -= geoObs
+                    estGeoRobots++
+                }
+            }
+
+            return estGeo
         }
     }
 
