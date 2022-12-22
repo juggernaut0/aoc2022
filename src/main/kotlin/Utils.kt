@@ -57,7 +57,7 @@ data class Grid<T>(val data: List<List<T>>) {
     }
 
     fun getOrNull(p: Point): T? {
-        return if (p.y in data.indices && data.isNotEmpty() && p.x in data[0].indices) {
+        return if (p.y in data.indices && data.isNotEmpty() && p.x in data[p.y].indices) {
             data[p.y][p.x]
         } else {
             null
@@ -74,9 +74,10 @@ data class Grid<T>(val data: List<List<T>>) {
     }
 }
 fun <T> String.toGrid(mapper: (Char, Point) -> T): Grid<T> {
-    val lines = trim().lines()
-    val data: MutableList<MutableList<T?>> = MutableList(lines.size) { MutableList(lines[0].length) { null } }
+    val lines = trimEnd().lines()
+    val data: MutableList<MutableList<T?>> = MutableList(lines.size) { mutableListOf() }
     for ((y, line) in lines.withIndex()) {
+        data[y] = MutableList(line.length) { null }
         for ((x, c) in line.withIndex()) {
             data[y][x] = mapper(c, Point(x, y))
         }
