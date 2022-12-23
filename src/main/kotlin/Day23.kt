@@ -19,13 +19,12 @@ object Day23 {
 
         println(((maxX - minX + 1) * (maxY - minY + 1)) - after10.size)
 
-        try {
-            generateSequence(0) { it + 1 }.fold(elves, ::step)
-        } catch (e: NoMovesException) {
-            println(e.stepNum + 1)
-            return
-        }
-        error("Part 2 failed")
+        val stepNum = generateSequence(0) { it + 1 }
+            .scan(elves, ::step)
+            .windowed(2)
+            .takeWhile { it[0] != it[1] }
+            .count()
+        println(stepNum + 1)
     }
 
     enum class Dir { N, S, W, E }
@@ -77,10 +76,6 @@ object Day23 {
         val newSet = proposed.flatMap { (k, v) -> if (v.size == 1) listOf(k) else v }.toSet()
         check(newSet.size == elves.size) { "Lost an elf!" }
 
-        if (newSet == elves) throw NoMovesException(stepNum)
-
         return newSet
     }
-
-    class NoMovesException(val stepNum: Int): Throwable()
 }
