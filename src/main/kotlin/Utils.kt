@@ -90,3 +90,15 @@ fun <T> Grid(width: Int, height: Int, fn: (Point) -> T): Grid<T> {
     val data = MutableList(height) { y -> MutableList(width) { x -> fn(Point(x, y)) } }
     return Grid(data)
 }
+
+tailrec fun gcd(a: Int, b: Int): Int {
+    return if (b == 0) {
+        a
+    } else {
+        gcd(b, a % b)
+    }
+}
+
+fun lcm(a: Int, b: Int): Int {
+    return (a * b) / gcd(a, b)
+}

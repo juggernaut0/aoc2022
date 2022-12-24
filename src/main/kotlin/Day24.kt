@@ -15,8 +15,8 @@ object Day24 {
                 else -> error(c)
             }
         }
-        // note: 5 is a hardcoded GCF of input dimensions
-        val maps = generateSequence(map) { nextMap(it) }.take((map.width() - 2) * (map.height() - 2) / 5).toList()
+
+        val maps = generateSequence(map) { nextMap(it) }.take(lcm(map.width() - 2, map.height() - 2)).toList()
 
         part1(maps)
         part2(maps)
@@ -40,31 +40,27 @@ object Day24 {
     }
 
     private fun pathTime(maps: List<Grid<Tile>>, start: Point, end: Point, startTime: Int): Int {
-        val goDown = start.y < end.y
-
         val queue = ArrayDeque<State>()
         val seen = mutableMapOf<State.Key, Int>()
         queue.add(State(start, startTime, maps))
-        var best = Int.MAX_VALUE
         while (queue.isNotEmpty()) {
-            val state = queue.removeLast()
-            if (state.time + state.pos.l1distance(end) >= best) continue
+            val state = queue.removeFirst()
+
+            if (state.pos == end) {
+                return state.time
+            }
+
             val key = state.key()
             if (state.time >= (seen[key] ?: Int.MAX_VALUE)) {
                 continue
             } else {
                 seen[key] = state.time
             }
-            if (state.pos == end) {
-                if (state.time < best) {
-                    best = state.time
-                    continue
-                }
-            }
-            val next = state.next(goDown)
-            queue.addAll(next.reversed())
+
+            val next = state.next()
+            queue.addAll(next)
         }
-        return best
+        return Int.MAX_VALUE
     }
 
     enum class Dir { U, D, L, R }
@@ -82,7 +78,7 @@ object Day24 {
     }
 
     class State(val pos: Point, val time: Int, private val maps: List<Grid<Tile>>) {
-        fun next(goDown: Boolean): List<State> {
+        fun next(): List<State> {
             val newMap = maps[(time + 1) % maps.size]
 
             val u = pos.diff(y = -1)
@@ -90,13 +86,7 @@ object Day24 {
             val l = pos.diff(x = -1)
             val r = pos.diff(x =  1)
 
-            val dirs = if (goDown) {
-                listOf(d, r, pos, u, l)
-            } else {
-                listOf(u, l, pos, d, r)
-            }
-
-            return dirs
+            return listOf(u, d, l, r, pos)
                 .filter { p -> p in newMap && newMap[p].isOpen() }
                 .map { State(it, time + 1, maps) }
         }
