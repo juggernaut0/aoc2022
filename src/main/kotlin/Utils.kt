@@ -52,16 +52,16 @@ data class Point3(val x: Int, val y: Int, val z: Int) {
 }
 
 data class Grid<T>(val data: List<List<T>>) {
+    operator fun contains(p: Point): Boolean {
+        return p.y in data.indices && data.isNotEmpty() && p.x in data[p.y].indices
+    }
+
     operator fun get(p: Point): T {
         return getOrNull(p) ?: throw IndexOutOfBoundsException(p.toString())
     }
 
     fun getOrNull(p: Point): T? {
-        return if (p.y in data.indices && data.isNotEmpty() && p.x in data[p.y].indices) {
-            data[p.y][p.x]
-        } else {
-            null
-        }
+        return if (p in this) data[p.y][p.x] else null
     }
 
     fun width() = data.getOrNull(0)?.size ?: 0
@@ -84,4 +84,9 @@ fun <T> String.toGrid(mapper: (Char, Point) -> T): Grid<T> {
     }
     @Suppress("UNCHECKED_CAST")
     return Grid(data) as Grid<T>
+}
+
+fun <T> Grid(width: Int, height: Int, fn: (Point) -> T): Grid<T> {
+    val data = MutableList(height) { y -> MutableList(width) { x -> fn(Point(x, y)) } }
+    return Grid(data)
 }
