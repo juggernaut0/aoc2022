@@ -11,29 +11,25 @@ object Day25 {
 
     class Snafu(private val value: Long) {
         override fun toString(): String {
-            val result = StringBuilder()
-
-            tailrec fun go(n: Long) {
+            tailrec fun stringify(n: Long, s: String): String {
                 if (n == 0L) {
-                    return
+                    return s
                 }
-                val m = n % 5
+                val m = ((n + 2) % 5) - 2
                 val c = when (m) {
+                    -2L -> '='
+                    -1L -> '-'
                     0L -> '0'
                     1L -> '1'
                     2L -> '2'
-                    3L -> '='
-                    4L -> '-'
                     else -> error("unreachable")
                 }
-                result.append(c)
-                val o = ((m + 2) % 5) - 2
-                go((n - o) / 5)
+                return stringify((n - m) / 5, c + s)
             }
 
-            go(value)
+            val result = stringify(value, "")
 
-            return result.toString().reversed().takeIf { it.isNotEmpty() } ?: "0"
+            return result.takeIf { it.isNotEmpty() } ?: "0"
         }
 
         operator fun plus(other: Snafu): Snafu {
