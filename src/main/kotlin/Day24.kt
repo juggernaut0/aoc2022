@@ -40,27 +40,19 @@ object Day24 {
     }
 
     private fun pathTime(maps: List<Grid<Tile>>, start: Point, end: Point, startTime: Int): Int {
-        val queue = ArrayDeque<State>()
-        val seen = mutableMapOf<State.Key, Int>()
-        queue.add(State(start, startTime, maps))
-        while (queue.isNotEmpty()) {
-            val state = queue.removeFirst()
+        val search = object : Search<State, State.Key, Int> {
+            override fun start(): State = State(start, startTime)
 
-            if (state.pos == end) {
-                return state.time
-            }
+            override fun State.nextStates(): List<State> = next(maps)
 
-            val key = state.key()
-            if (state.time >= (seen[key] ?: Int.MAX_VALUE)) {
-                continue
-            } else {
-                seen[key] = state.time
-            }
+            override fun State.metric(): Int = time
 
-            val next = state.next()
-            queue.addAll(next)
+            override fun State.key(): State.Key = State.Key(pos, time % maps.size)
+
+            override fun State.isGoal(): Boolean = pos == end
         }
-        return Int.MAX_VALUE
+
+        return search.breadthFirstSearch()!!
     }
 
     enum class Dir { U, D, L, R }
@@ -77,8 +69,8 @@ object Day24 {
         }
     }
 
-    class State(val pos: Point, val time: Int, private val maps: List<Grid<Tile>>) {
-        fun next(): List<State> {
+    class State(val pos: Point, val time: Int) {
+        fun next(maps: List<Grid<Tile>>): List<State> {
             val newMap = maps[(time + 1) % maps.size]
 
             val u = pos.diff(y = -1)
@@ -88,11 +80,10 @@ object Day24 {
 
             return listOf(u, d, l, r, pos)
                 .filter { p -> p in newMap && newMap[p].isOpen() }
-                .map { State(it, time + 1, maps) }
+                .map { State(it, time + 1) }
         }
 
         data class Key(val pos: Point, val mapI: Int)
-        fun key() = Key(pos, time % maps.size)
     }
 
     private fun nextMap(map: Grid<Tile>): Grid<Tile> {

@@ -102,3 +102,67 @@ tailrec fun gcd(a: Int, b: Int): Int {
 fun lcm(a: Int, b: Int): Int {
     return (a * b) / gcd(a, b)
 }
+
+// optimizes for LOWEST metric value
+interface Search<TState, TKey, TMetric : Comparable<TMetric>> {
+    fun start(): TState
+
+    fun TState.isGoal(): Boolean
+
+    fun TState.key(): TKey
+
+    fun TState.metric(): TMetric
+
+    fun TState.nextStates(): List<TState>
+
+    /**
+     * @return an overestimation of the metric of the goal state following this state
+     */
+    fun TState.estimated(): TMetric? = null
+}
+
+fun <TState, TKey, TMetric : Comparable<TMetric>> Search<TState, TKey, TMetric>.breadthFirstSearch(): TMetric? {
+    val queue = ArrayDeque<TState>()
+    val seen = mutableMapOf<TKey, TMetric>()
+    queue.add(start())
+    while (queue.isNotEmpty()) {
+        val state = queue.removeFirst()
+        val metric = state.metric()
+
+        if (state.isGoal()) {
+            return metric
+        }
+
+        val key = state.key()
+        if (seen[key]?.let { metric >= it } == true) {
+            continue
+        } else {
+            seen[key] = metric
+        }
+
+        val next = state.nextStates()
+        queue.addAll(next)
+    }
+    return null
+}
+
+fun <TState, TKey, TMetric : Comparable<TMetric>> Search<TState, TKey, TMetric>.depthFirstSearch(): TMetric? {
+    val queue = mutableListOf(start())
+    var best: TMetric? = null
+    while (queue.isNotEmpty()) {
+        val state = queue.removeLast()
+
+        val estimated = state.estimated()
+        if (best != null && estimated != null && estimated <= best) continue
+
+        if (state.isGoal()) {
+            val metric = state.metric()
+            if (best == null || metric > best) {
+                best = metric
+            }
+        } else {
+            queue.addAll(state.nextStates())
+        }
+    }
+    return best
+}
